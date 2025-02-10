@@ -1,0 +1,86 @@
+version: '3.8'
+
+services:
+  flask:
+    build:
+      context: ./app/flask
+      args:
+        FLASK_PORT: ${FLASK_PORT:-5050}
+    container_name: flask
+    restart: unless-stopped
+    ports:
+      - "${FLASK_PORT:-5050}:${FLASK_PORT:-5050}"
+    volumes:
+      - ./app:/app
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    environment:
+      # MariaDB
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_USER_PASSWORD: ${DB_USER_PASSWORD}
+      DB_HOST: mariadb
+    networks:
+      - database
+      - frontend
+
+  telegram_bot:
+    build:
+      context: ./app/telegram
+      #args:
+      #  FLASK_PORT: ${FLASK_PORT:-5050}
+    container_name: flask
+    restart: unless-stopped
+    #ports:
+    #  - "${FLASK_PORT:-5050}:${FLASK_PORT:-5050}"
+    volumes:
+      - ./app:/app
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      flask:
+        condition: service_healthy
+    environment:
+      # MariaDB
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_USER_PASSWORD: ${DB_USER_PASSWORD}
+      DB_HOST: mariadb
+    networks:
+      - database
+      - frontend
+
+  mariadb:
+    image: mariadb:latest
+    container_name: mariadb
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_USER_PASSWORD}
+    healthcheck:
+      test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    volumes:
+      - mc_tg_mariadb_data:/var/lib/mysql      # Persistent storage for the database
+      - ./app/database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "3306:3306" # For pycharm idea use
+    expose:
+      - "3306:3306"  # Expose port 3306 for database access
+    networks:
+      - database
+
+volumes:
+  mc_tg_mariadb_data:
+
+networks:
+  database:
+    internal: true
+  frontend:
+    internal: false

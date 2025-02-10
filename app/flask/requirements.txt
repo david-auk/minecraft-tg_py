@@ -1,0 +1,3 @@
+mcrcon==0.7.0
+mysql-connector-python==8.0.32
+Flask==3.0.3
