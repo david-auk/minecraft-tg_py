@@ -16,18 +16,13 @@ ARG FLASK_PORT
 # Make the flask port available to the world outside this container
 EXPOSE ${FLASK_PORT}
 
-#RUN mkdir -p "/data/playlist"
-
-#RUN useradd -ms /bin/bash nonrootuser
-#RUN mkdir -p "/data/playlist" && chown nonrootuser /data/playlist
-
-#VOLUME /data
+RUN useradd -ms /bin/bash nonrootuser
 
 # Demote to non root lever
 USER nonrootuser
 
 # Define environment variable
-ENV FLASK_APP=app.py
+ENV FLASK_APP=flask/app.py
 ENV FLASK_RUN_PORT=${FLASK_PORT}
 ENV FLASK_RUN_HOST=0.0.0.0
 # Run the application

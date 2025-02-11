@@ -24,13 +24,14 @@ services:
     networks:
       - database
       - frontend
+    # TODO Add healthcheck
 
   telegram_bot:
     build:
       context: ./app/telegram
       #args:
       #  FLASK_PORT: ${FLASK_PORT:-5050}
-    container_name: flask
+    container_name: telegram_bot
     restart: unless-stopped
     #ports:
     #  - "${FLASK_PORT:-5050}:${FLASK_PORT:-5050}"
@@ -39,9 +40,12 @@ services:
     depends_on:
       mariadb:
         condition: service_healthy
-      flask:
-        condition: service_healthy
+      #flask:
+      #  condition: service_healthy
     environment:
+      # Telegram
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+
       # MariaDB
       DB_NAME: ${DB_NAME}
       DB_USER: ${DB_USER}
