@@ -1,7 +1,8 @@
 CREATE TABLE user (
-    chat_id CHAR(30) PRIMARY KEY,
-    name CHAR(255) DEFAULT NULL,
-    invited_by CHAR(12),
+    chat_id BIGINT(30) PRIMARY KEY,
+    full_name CHAR(255) DEFAULT NULL,
+    user_name CHAR(255) DEFAULT NULL,
+    invited_by BIGINT(30) DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (invited_by) REFERENCES user(chat_id) ON DELETE CASCADE
 );

@@ -8,11 +8,11 @@ class UserDAO(MySQLConnector):
 
     def __get_from_result(self, row: dict) -> User:
         invited_by_user = self.get(row["invited_by"]) if row["invited_by"] else None
-        return User(row["chat_id"], row["name"], invited_by_user)
+        return User(chat_id = row["chat_id"], user_name = row["user_name"], full_name = row["full_name"], invited_by = invited_by_user)
 
     def get(self, chat_id: str) -> User | None:
         """Fetches a user by chat_id."""
-        query = "SELECT chat_id, name, invited_by FROM user WHERE chat_id = %s"
+        query = "SELECT chat_id, user_name, full_name, invited_by FROM user WHERE chat_id = %s"
         result = self.execute_query(query, (chat_id,))
         if result:
             return self.__get_from_result(result[0])
@@ -31,13 +31,13 @@ class UserDAO(MySQLConnector):
     def put(self, user: User) -> None:
         """Inserts or updates a user in the database."""
         query = """
-        INSERT INTO user (chat_id, name, invited_by) 
-        VALUES (%s, %s, %s)
-        ON DUPLICATE KEY UPDATE name = VALUES(name)
+        INSERT INTO user (chat_id, user_name, full_name, invited_by) 
+        VALUES (%s, %s, %s, %s)
+        ON DUPLICATE KEY UPDATE user_name = VALUES(user_name), full_name = VALUES(full_name)
         """
-        self.execute_update(query, (user.chat_id, user.name, user.invited_by.chat_id if user.invited_by else None))
+        self.execute_update(query, (user.chat_id, user.user_name, user.full_name, user.invited_by.chat_id if user.invited_by else None))
 
-    def exists(self, chat_id: str) -> bool:
+    def exists(self, chat_id: int) -> bool:
         """Checks if a user exists in the database."""
         query = "SELECT EXISTS(SELECT 1 FROM user WHERE chat_id = %s) AS exists_flag"
         result = self.execute_query(query, (chat_id,))

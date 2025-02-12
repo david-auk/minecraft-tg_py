@@ -1,17 +1,10 @@
-import os
-import telebot
-from . import decorators
-
-# Get the bot token from environment variables
-TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-bot = telebot.TeleBot(TOKEN)
-tg_decorator = decorators.TelegramDecorator(bot)
-
-@bot.message_handler(func = lambda message: True)
-@tg_decorator.authorised_arg
-def echo_all(message):
-    bot.reply_to(message, "Hello, World!")
-
+from app.telegram.bot import bot
+import app.telegram.handlers  # Import handlers to register them
+from app.telegram.logger import logger
 
 if __name__ == "__main__":
-    bot.polling(none_stop = True)
+    try:
+        logger.info("Bot is starting...")
+        bot.polling(none_stop=True)
+    except Exception as e:
+        logger.error(f"Bot crashed due to error: {e}")

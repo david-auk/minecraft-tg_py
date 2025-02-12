@@ -29,12 +29,8 @@ services:
   telegram_bot:
     build:
       context: ./app/telegram
-      #args:
-      #  FLASK_PORT: ${FLASK_PORT:-5050}
     container_name: telegram_bot
     restart: unless-stopped
-    #ports:
-    #  - "${FLASK_PORT:-5050}:${FLASK_PORT:-5050}"
     volumes:
       - ./app:/app:ro
     depends_on:
