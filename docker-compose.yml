@@ -11,7 +11,7 @@ services:
     ports:
       - "${FLASK_PORT:-5050}:${FLASK_PORT:-5050}"
     volumes:
-      - ./app:/app
+      - ./app:/app:ro
     depends_on:
       mariadb:
         condition: service_healthy
@@ -36,7 +36,7 @@ services:
     #ports:
     #  - "${FLASK_PORT:-5050}:${FLASK_PORT:-5050}"
     volumes:
-      - ./app:/app
+      - ./app:/app:ro
     depends_on:
       mariadb:
         condition: service_healthy
@@ -72,7 +72,7 @@ services:
       retries: 3
     volumes:
       - mc_tg_mariadb_data:/var/lib/mysql      # Persistent storage for the database
-      - ./app/database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./app/database/db_structure.sql:/docker-entrypoint-initdb.d/init.sql:ro
     ports:
       - "3306:3306" # For pycharm idea use
     expose:
