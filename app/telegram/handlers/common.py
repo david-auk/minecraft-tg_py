@@ -1,4 +1,4 @@
-from ..bot import bot, tg_decorator
+from ..bot import bot
 from ..logger import logger
 from app.database.dao.telegram.user_dao import UserDAO
 from app.database.models.telegram import User
