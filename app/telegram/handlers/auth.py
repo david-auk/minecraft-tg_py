@@ -36,3 +36,6 @@ def invite_listener(message: Message):
             logger.info(f"Invitee {invitee} Authorized by {user}")
     else:
         bot.reply_to(message, "⚠️ That was not a contact! Please send a valid contact.")
+
+
+# TODO Implement remove

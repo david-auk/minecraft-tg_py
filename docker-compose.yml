@@ -22,8 +22,8 @@ services:
       DB_USER_PASSWORD: ${DB_USER_PASSWORD}
       DB_HOST: mariadb
     networks:
+      - api
       - database
-      - frontend
     # TODO Add healthcheck
 
   telegram_bot:
@@ -49,7 +49,8 @@ services:
       DB_HOST: mariadb
     networks:
       - database
-      - frontend
+      - api
+      - www
 
   mariadb:
     image: mariadb:latest
@@ -82,5 +83,7 @@ volumes:
 networks:
   database:
     internal: true
-  frontend:
+  api:
+    internal: true
+  www:
     internal: false
