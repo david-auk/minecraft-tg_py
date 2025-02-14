@@ -1,29 +1,9 @@
-from functools import wraps
-from flask import Flask, flash, request, jsonify
+from flask import jsonify
 from app.database.dao.minecraft.server_dao import ServerDAO
 from app.tmux import TmuxSession
-from . import minecraft_bp
-
-
-def with_session(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        data = request.get_json()
-        server_id = data.get('server_id')
-
-        if not server_id:
-            return jsonify({'error': 'Missing server_id'}), 500
-
-        with ServerDAO() as server_dao:
-            server = server_dao.get(server_id)
-
-        if not server:
-            return jsonify({'error': 'server_id not found'}), 500
-
-        session = TmuxSession(server)
-        return f(session, *args, **kwargs)  # Pass the session as a parameter
-
-    return decorated_function
+from . import minecraft_bp, with_session
+from ..utils import get_params, get_optional_params
+import build_new_server
 
 
 @minecraft_bp.route('/start', methods = ["POST"])
@@ -48,7 +28,7 @@ def stop(session: TmuxSession):
 
 @minecraft_bp.route('/status', methods = ["GET"])
 def status():
-    with ServerDAO as server_dao:
+    with ServerDAO() as server_dao:
         servers = server_dao.get_all()
 
     server_info = []
@@ -62,4 +42,28 @@ def status():
             'users': server.get_current_users() if is_running else []
         })
 
-    return jsonify({'status', server_info}), 200
+    return jsonify({'status': server_info}), 200
+
+
+@minecraft_bp.route('/new-server', methods = ["POST"])
+@get_params(server_name=str, server_version=str, jar_download_url=str, java_min_ram=int, java_max_ram=int)
+@get_optional_params(properties=dict)
+def new_server(server_name: str, server_version: str, jar_download_url: str, java_min_ram: int, java_max_ram: int,
+               properties: dict = None):
+
+    try:
+        server = build_new_server.build(
+            server_name = server_name,
+            server_version = server_version,
+            jar_download_url = jar_download_url,
+            min_ram = java_min_ram,
+            max_ram = java_max_ram,
+            properties = properties or {}
+        )
+
+        with ServerDAO() as server_dao:
+            server_dao.put(server)
+
+        return jsonify({'message': 'successfully_added server'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)})
