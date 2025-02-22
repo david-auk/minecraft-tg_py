@@ -6,6 +6,9 @@ services:
       context: ./app/flask
       args:
         FLASK_PORT: ${FLASK_PORT:-5050}
+
+        # MC
+        MINECRAFT_SERVER_ROOT: "/opt/minecraft/servers"
     container_name: flask
     restart: unless-stopped
     ports:
@@ -84,6 +87,6 @@ networks:
   database:
     internal: true
   api:
-    internal: true
+    internal: false
   www:
     internal: false

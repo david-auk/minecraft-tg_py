@@ -27,7 +27,7 @@ class TmuxSession:
         self.server.update_properties()
 
         subprocess.run(['tmux', 'new-session', '-d', '-s', self.session_name, '-c', self.server.server_path,
-                        self.server.get_start_cmd()])
+                        " ".join(self.server.get_start_cmd())])
 
     def stop(self):
         if not self.is_running():

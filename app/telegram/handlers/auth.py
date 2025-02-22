@@ -4,11 +4,13 @@ from app.database.dao.telegram.user_dao import UserDAO
 from app.database.models.telegram import User
 from telebot.types import Message
 
+
 @bot.message_handler(commands=['invite'])
 @tg_decorator.restricted
 def invite_command(message: Message):
     bot.reply_to(message, "📇 Send me the contact you want to invite.")
     tg_decorator.prime_listener(message.chat.id, "invite")
+
 
 @tg_decorator.listener("invite")
 def invite_listener(message: Message):
